@@ -67,8 +67,8 @@ public static class CreateHomeScene
         var title = CreateTMP("Title", "Bowling", 72, TextAlignmentOptions.Center);
         title.transform.SetParent(panelGO.transform, false);
         var titleRect = title.GetComponent<RectTransform>();
-        titleRect.anchorMin = new Vector2(0.5f, 0.85f);
-        titleRect.anchorMax = new Vector2(0.5f, 0.85f);
+        titleRect.anchorMin = new Vector2(0.5f, 0.9f);
+        titleRect.anchorMax = new Vector2(0.5f, 0.9f);
         titleRect.anchoredPosition = Vector2.zero;
         titleRect.sizeDelta = new Vector2(600, 100);
 
@@ -76,8 +76,8 @@ public static class CreateHomeScene
         var label = CreateTMP("PlayersLabel", "Players", 36, TextAlignmentOptions.Center);
         label.transform.SetParent(panelGO.transform, false);
         var labelRect = label.GetComponent<RectTransform>();
-        labelRect.anchorMin = new Vector2(0.5f, 0.6f);
-        labelRect.anchorMax = new Vector2(0.5f, 0.6f);
+        labelRect.anchorMin = new Vector2(0.5f, 0.7f);
+        labelRect.anchorMax = new Vector2(0.5f, 0.7f);
         labelRect.anchoredPosition = new Vector2(0, 40);
         labelRect.sizeDelta = new Vector2(300, 60);
 
@@ -85,45 +85,80 @@ public static class CreateHomeScene
         var value = CreateTMP("PlayersValue", "1", 48, TextAlignmentOptions.Center);
         value.transform.SetParent(panelGO.transform, false);
         var valueRect = value.GetComponent<RectTransform>();
-        valueRect.anchorMin = new Vector2(0.5f, 0.5f);
-        valueRect.anchorMax = new Vector2(0.5f, 0.5f);
-        valueRect.anchoredPosition = new Vector2(0, 0);
+        valueRect.anchorMin = new Vector2(0.5f, 0.62f);
+        valueRect.anchorMax = new Vector2(0.5f, 0.62f);
+        valueRect.anchoredPosition = new Vector2(0, 50);
         valueRect.sizeDelta = new Vector2(160, 60);
 
         // Minus and Plus buttons
         var minus = CreateButton("MinusButton", "-");
         minus.transform.SetParent(panelGO.transform, false);
         var minusRect = minus.GetComponent<RectTransform>();
-        minusRect.anchorMin = new Vector2(0.5f, 0.5f);
-        minusRect.anchorMax = new Vector2(0.5f, 0.5f);
-        minusRect.anchoredPosition = new Vector2(-120, 0);
+        minusRect.anchorMin = new Vector2(0.5f, 0.62f);
+        minusRect.anchorMax = new Vector2(0.5f, 0.62f);
+        minusRect.anchoredPosition = new Vector2(-120, 50);
         minusRect.sizeDelta = new Vector2(80, 60);
 
         var plus = CreateButton("PlusButton", "+");
         plus.transform.SetParent(panelGO.transform, false);
         var plusRect = plus.GetComponent<RectTransform>();
-        plusRect.anchorMin = new Vector2(0.5f, 0.5f);
-        plusRect.anchorMax = new Vector2(0.5f, 0.5f);
-        plusRect.anchoredPosition = new Vector2(120, 0);
+        plusRect.anchorMin = new Vector2(0.5f, 0.62f);
+        plusRect.anchorMax = new Vector2(0.5f, 0.62f);
+        plusRect.anchoredPosition = new Vector2(120, 50);
         plusRect.sizeDelta = new Vector2(80, 60);
+
+        // ★Games label
+        var gamesLabel = CreateTMP("GamesLabel", "Games", 36, TextAlignmentOptions.Center);
+        gamesLabel.transform.SetParent(panelGO.transform, false);
+        var gamesLabelRect = gamesLabel.GetComponent<RectTransform>();
+        gamesLabelRect.anchorMin = new Vector2(0.5f, 0.5f);
+        gamesLabelRect.anchorMax = new Vector2(0.5f, 0.5f);
+        gamesLabelRect.anchoredPosition = new Vector2(0, 90);
+        gamesLabelRect.sizeDelta = new Vector2(300, 60);
+
+        // ★Games value
+        var gamesValue = CreateTMP("GamesValue", "1", 48, TextAlignmentOptions.Center);
+        gamesValue.transform.SetParent(panelGO.transform, false);
+        var gamesValueRect = gamesValue.GetComponent<RectTransform>();
+        gamesValueRect.anchorMin = new Vector2(0.5f, 0.42f);
+        gamesValueRect.anchorMax = new Vector2(0.5f, 0.42f);
+        gamesValueRect.anchoredPosition = new Vector2(0, 120);
+        gamesValueRect.sizeDelta = new Vector2(160, 60);
+
+        // ★Games minus/plus buttons
+        var gamesMinus = CreateButton("GamesMinusButton", "-");
+        gamesMinus.transform.SetParent(panelGO.transform, false);
+        var gamesMinusRect = gamesMinus.GetComponent<RectTransform>();
+        gamesMinusRect.anchorMin = new Vector2(0.5f, 0.42f);
+        gamesMinusRect.anchorMax = new Vector2(0.5f, 0.42f);
+        gamesMinusRect.anchoredPosition = new Vector2(-120, 120);
+        gamesMinusRect.sizeDelta = new Vector2(80, 60);
+
+        var gamesPlus = CreateButton("GamesPlusButton", "+");
+        gamesPlus.transform.SetParent(panelGO.transform, false);
+        var gamesPlusRect = gamesPlus.GetComponent<RectTransform>();
+        gamesPlusRect.anchorMin = new Vector2(0.5f, 0.42f);
+        gamesPlusRect.anchorMax = new Vector2(0.5f, 0.42f);
+        gamesPlusRect.anchoredPosition = new Vector2(120, 120);
+        gamesPlusRect.sizeDelta = new Vector2(80, 60);
 
         // Player name fields label
         var namesLabel = CreateTMP("NamesLabel", "Player Names", 36, TextAlignmentOptions.Center);
         namesLabel.transform.SetParent(panelGO.transform, false);
         var namesLabelRect = namesLabel.GetComponent<RectTransform>();
-        namesLabelRect.anchorMin = new Vector2(0.5f, 0.42f);
-        namesLabelRect.anchorMax = new Vector2(0.5f, 0.42f);
-        namesLabelRect.anchoredPosition = new Vector2(0, 20);
+        namesLabelRect.anchorMin = new Vector2(0.5f, 0.32f);
+        namesLabelRect.anchorMax = new Vector2(0.5f, 0.32f);
+        namesLabelRect.anchoredPosition = new Vector2(0, 140);
         namesLabelRect.sizeDelta = new Vector2(300, 50);
 
         // Names container
         var namesContainerGO = new GameObject("NamesContainer", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
         namesContainerGO.transform.SetParent(panelGO.transform, false);
         var namesContainerRect = namesContainerGO.GetComponent<RectTransform>();
-        namesContainerRect.anchorMin = new Vector2(0.5f, 0.15f);
-        namesContainerRect.anchorMax = new Vector2(0.5f, 0.15f);
-        namesContainerRect.anchoredPosition = new Vector2(0, 140);
-        namesContainerRect.sizeDelta = new Vector2(520, 220);
+        namesContainerRect.anchorMin = new Vector2(0.5f, 0.1f);
+        namesContainerRect.anchorMax = new Vector2(0.5f, 0.1f);
+        namesContainerRect.anchoredPosition = new Vector2(0, 200);
+        namesContainerRect.sizeDelta = new Vector2(520, 180);
         var namesLayout = namesContainerGO.GetComponent<VerticalLayoutGroup>();
         namesLayout.childAlignment = TextAnchor.UpperCenter;
         namesLayout.spacing = 10f;
@@ -145,7 +180,7 @@ public static class CreateHomeScene
         var startRect = start.GetComponent<RectTransform>();
         startRect.anchorMin = new Vector2(0.5f, 0.02f);
         startRect.anchorMax = new Vector2(0.5f, 0.02f);
-        startRect.anchoredPosition = Vector2.zero;
+        startRect.anchoredPosition = new Vector2(0,100);
         startRect.sizeDelta = new Vector2(240, 80);
 
         // HomeMenuManager
@@ -155,26 +190,33 @@ public static class CreateHomeScene
         homeMenu.namesContainer = namesContainerGO.GetComponent<RectTransform>();
         homeMenu.nameFieldPrefab = nameFieldTemplate.GetComponent<TMP_InputField>();
         homeMenu.gameSceneName = "SampleScene";
+        homeMenu.gameCountTextTMP = gamesValue.GetComponent<TextMeshProUGUI>(); // ★追加
 
         // Wire button events and make them persistent so they survive saving the scene
         var minusBtn = minus.GetComponent<Button>();
         var plusBtn = plus.GetComponent<Button>();
         var startBtn = start.GetComponent<Button>();
+        var gamesMinusBtn = gamesMinus.GetComponent<Button>(); // ★追加
+        var gamesPlusBtn = gamesPlus.GetComponent<Button>();   // ★追加
 
         UnityEditor.Events.UnityEventTools.AddPersistentListener(minusBtn.onClick, homeMenu.DecreasePlayerCount);
-
         UnityEditor.Events.UnityEventTools.AddPersistentListener(plusBtn.onClick, homeMenu.IncreasePlayerCount);
-
         UnityEditor.Events.UnityEventTools.AddPersistentListener(startBtn.onClick, homeMenu.StartGame);
+        UnityEditor.Events.UnityEventTools.AddPersistentListener(gamesMinusBtn.onClick, homeMenu.DecreaseGameCount); // ★追加
+        UnityEditor.Events.UnityEventTools.AddPersistentListener(gamesPlusBtn.onClick, homeMenu.IncreaseGameCount);  // ★追加
 
         // Ensure buttons are interactable and mark objects dirty so Unity serializes the changes
         minusBtn.interactable = true;
         plusBtn.interactable = true;
         startBtn.interactable = true;
+        gamesMinusBtn.interactable = true; // ★追加
+        gamesPlusBtn.interactable = true;  // ★追加
 
         UnityEditor.EditorUtility.SetDirty(minusBtn);
         UnityEditor.EditorUtility.SetDirty(plusBtn);
         UnityEditor.EditorUtility.SetDirty(startBtn);
+        UnityEditor.EditorUtility.SetDirty(gamesMinusBtn); // ★追加
+        UnityEditor.EditorUtility.SetDirty(gamesPlusBtn);  // ★追加
         UnityEditor.EditorUtility.SetDirty(managerGO);
 
         // Save scene

@@ -189,6 +189,15 @@ public class FrameManager : MonoBehaviour
         }
     }
 
+    public void StartNextGame()
+    {
+        foreach (var player in players)
+        {
+            player.ResetForNextGame();
+        }
+        currentPlayerIndex = 0;
+    }
+
     public bool IsGameFinished()
     {
         if (players == null)
@@ -213,7 +222,7 @@ public class PlayerData
     public List<FrameData> frames = new List<FrameData>();
     public FrameData currentFrameData = new FrameData();
     public int totalScore = 0;
-
+    public int cumulativeScore = 0;
     public bool IsFinished()
     {
         return frames.Count >= 10;
@@ -243,4 +252,15 @@ public class PlayerData
         currentFrame++;
         StartNewFrame();
     }
+
+    public void ResetForNextGame()
+    {
+        cumulativeScore += totalScore;
+        currentFrame = 1;
+        throwCount = 0;
+        frames.Clear();
+        currentFrameData = new FrameData();
+        totalScore = 0;
+    }
+
 }

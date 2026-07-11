@@ -166,9 +166,19 @@ public class GameManager : MonoBehaviour
             Debug.Log("ゲーム終了！");
             ballThrower.enabled = false;
 
-            if (scoreUIManager != null)
+            if (GameSettings.CurrentGameNumber < GameSettings.TotalGameCount)
             {
-                scoreUIManager.ShowFinalScorePanel();
+                if (scoreUIManager != null)
+                {
+                    scoreUIManager.ShowGameEndPanel(true);
+                }
+            }
+            else
+            {
+                if (scoreUIManager != null)
+                {
+                    scoreUIManager.ShowGameEndPanel(false);
+                }
             }
 
             yield break;
@@ -243,5 +253,26 @@ public class GameManager : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         pinManager.UnfreezeStandingPins();
+    }
+
+    public void StartNextGame()
+    {
+        GameSettings.CurrentGameNumber++;
+
+        frameManager.StartNextGame();
+        scoreManager.CalculateScore();
+
+        pinManager.ResetAllPins();
+        ballReset.ResetBall();
+        ballReturnTrigger.ResetTrigger();
+
+        ballThrower.enabled = true;
+        ballThrower.EnableThrow();
+
+        var ballSelector = FindObjectOfType<BallSelector>();
+        if (ballSelector != null)
+            ballSelector.EnableBallChange();
+
+        UpdateUI();
     }
 }

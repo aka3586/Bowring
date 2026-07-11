@@ -28,6 +28,8 @@ public class ScoreUIManager : MonoBehaviour
     private FrameManager frameManager;
     private Button homeButton;
     public string homeSceneName = "Home"; // ← Inspectorで設定可能
+    private Button nextGameButton;
+    private GameManager gameManager;
     void Awake()
     {
         if (playerNameText == null)
@@ -41,6 +43,7 @@ public class ScoreUIManager : MonoBehaviour
     void Start()
     {
         frameManager = Object.FindAnyObjectByType<FrameManager>();
+        gameManager = Object.FindAnyObjectByType<GameManager>();
         uiCanvas = GetComponentInParent<Canvas>() ?? Object.FindAnyObjectByType<Canvas>();
         ballSelector = Object.FindAnyObjectByType<BallSelector>();
         CreateScoreOverlayUI();
@@ -233,6 +236,34 @@ public class ScoreUIManager : MonoBehaviour
         homeLabel.rectTransform.offsetMin = Vector2.zero;
         homeLabel.rectTransform.offsetMax = Vector2.zero;
 
+        var nextGameRoot = new GameObject("NextGameButton", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+        nextGameRoot.transform.SetParent(panel.transform, false);
+        var nextGameRect = nextGameRoot.GetComponent<RectTransform>();
+        nextGameRect.anchorMin = new Vector2(0.5f, 0f);
+        nextGameRect.anchorMax = new Vector2(0.5f, 0f);
+        nextGameRect.pivot = new Vector2(0.5f, 0f);
+        nextGameRect.anchoredPosition = new Vector2(200f, 16f); // ホームボタンの右側
+        nextGameRect.sizeDelta = new Vector2(200f, 46f);
+        nextGameRoot.GetComponent<Image>().color = new Color32(40, 90, 60, 220);
+        nextGameRoot.SetActive(false); // 通常は非表示
+
+        nextGameButton = nextGameRoot.GetComponent<Button>();
+        nextGameButton.targetGraphic = nextGameRoot.GetComponent<Image>();
+        nextGameButton.onClick.AddListener(() => {
+            if (gameManager != null)
+                gameManager.StartNextGame();
+            HideScorePanel();
+            if (homeButton != null) homeButton.gameObject.SetActive(false);
+            if (nextGameButton != null) nextGameButton.gameObject.SetActive(false);
+        });
+
+        var nextGameLabel = CreateText("NextGameLabel", "Next Game", 18, TextAlignmentOptions.Center, null, nextGameRoot.transform);
+        nextGameLabel.color = Color.white;
+        nextGameLabel.rectTransform.anchorMin = Vector2.zero;
+        nextGameLabel.rectTransform.anchorMax = Vector2.one;
+        nextGameLabel.rectTransform.offsetMin = Vector2.zero;
+        nextGameLabel.rectTransform.offsetMax = Vector2.zero;
+
         var content = new GameObject("Content", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
         content.transform.SetParent(panel.transform, false);
         var contentRect = content.GetComponent<RectTransform>();
@@ -274,14 +305,26 @@ public class ScoreUIManager : MonoBehaviour
         if (ballSelector != null) ballSelector.EnableBallChange();
         scoreOverlayRoot.SetActive(false);
     }
-    public void ShowFinalScorePanel()
+    public void ShowGameEndPanel(bool hasNextGame)
     {
         if (scoreOverlayRoot == null) return;
         if (showScoreButton != null) showScoreButton.gameObject.SetActive(false);
-        if (homeButton != null) homeButton.gameObject.SetActive(true); // ホームボタンを表示
+
+        if (hasNextGame)
+        {
+            if (nextGameButton != null) nextGameButton.gameObject.SetActive(true);
+            if (homeButton != null) homeButton.gameObject.SetActive(false);
+        }
+        else
+        {
+            if (nextGameButton != null) nextGameButton.gameObject.SetActive(false);
+            if (homeButton != null) homeButton.gameObject.SetActive(true);
+        }
+
         scoreOverlayRoot.SetActive(true);
         RefreshScorePanel();
     }
+
     public void RefreshScorePanel()
     {
         if (scoreContentRoot == null) return;
@@ -305,8 +348,9 @@ public class ScoreUIManager : MonoBehaviour
             blockLE.minHeight = 100f;   // ★ 追加
 
             // プレイヤー名ヘッダー
+            int cumulativeTotal = player.cumulativeScore + player.totalScore;
             var header = CreateText($"PlayerHeader_{playerIndex + 1}",
-                $"{player.playerName}  Total: {player.totalScore}", 18,
+                $"{player.playerName}  Game Total: {player.totalScore}  Total: {cumulativeTotal}", 18,
                 TextAlignmentOptions.MidlineLeft, null, block.transform);
             header.color = Color.white;
             var headerRect = header.rectTransform;
