@@ -66,7 +66,7 @@ public class PurchaseUIManager : MonoBehaviour
         statusText.color = Color.green;
 
         // 購入ボタン
-        var buyBtn = CreateButton("price",
+        var buyBtn = CreateButton("push",
             new Vector2(0f, -100f), new Vector2(240f, 60f),
             panel.transform, new Color32(40, 120, 60, 255));
         buyBtn.GetComponent<Button>().onClick.AddListener(OnPurchase);

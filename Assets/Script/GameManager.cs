@@ -3,10 +3,12 @@ using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
+    [Header("Ball Management")]
+    public BallManager ballManager;
     public BallReset ballReset;
+    public Rigidbody ballRb;
     public PinManager pinManager;
     public BallThrower ballThrower;
-    public Rigidbody ballRb;
     public Pin[] pins;
     public BallReturnTrigger ballReturnTrigger;
     public ScoreManager scoreManager;
@@ -18,6 +20,11 @@ public class GameManager : MonoBehaviour
 
     bool isRolling = false;
 
+    [Header("CPU Settings")]
+    public bool useCPU = true; // ★ゲーム中ON/OFFボタンで切り替え
+    private CPUPlayer cpuPlayer;
+    private GameObject cpuToggleButton;
+    private TMPro.TextMeshProUGUI cpuToggleLabel;
     void Awake()
     {
         pins = FindObjectsByType<Pin>(FindObjectsInactive.Exclude);
@@ -25,6 +32,18 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        // BallManagerを初期化
+        if (ballManager == null)
+            ballManager = FindObjectOfType<BallManager>();
+
+        if (ballManager != null)
+            ballManager.Initialize(this);
+
+        // ballRbをBallManagerから取得
+        ballReset = ballManager?.GetCurrentBallReset();
+        ballRb = ballManager?.GetCurrentRigidbody();
+        ballThrower = ballManager?.GetCurrentBallThrower();
+
         if (scoreUIManager == null)
         {
             scoreUIManager = FindObjectOfType<ScoreUIManager>();
@@ -40,30 +59,20 @@ public class GameManager : MonoBehaviour
         if (cameraBallFollower == null)
             cameraBallFollower = FindObjectOfType<CameraBallFollower>();
 
-        if (ballRb == null && ballThrower != null)
-            ballRb = ballThrower.GetComponent<Rigidbody>();
-
-        if (ballRb == null)
-        {
-            var ballObject = GameObject.FindWithTag("Ball");
-            if (ballObject != null)
-                ballRb = ballObject.GetComponent<Rigidbody>();
-        }
-
-        if (ballRb == null)
-        {
-            var ballObject = GameObject.Find("ball") ?? GameObject.Find("Ball");
-            if (ballObject != null)
-                ballRb = ballObject.GetComponent<Rigidbody>();
-        }
-
         if (cameraBallFollower == null)
             Debug.LogWarning("GameManager: CameraBallFollower not found. Camera follow will be disabled.");
-        if (ballRb == null)
-            Debug.LogWarning("GameManager: ballRb not assigned or found. Camera follow will be disabled.");
+
         var ballSelector = FindObjectOfType<BallSelector>();
         if (ballSelector != null)
             ballSelector.EnableBallChange();
+        cpuPlayer = FindObjectOfType<CPUPlayer>();
+        if (cpuPlayer == null)
+        {
+            var cpuGO = new GameObject("CPUPlayer");
+            cpuPlayer = cpuGO.AddComponent<CPUPlayer>();
+        }
+
+        CreateCPUToggleButton();
         // 最初の表示用
         scoreManager.CalculateScore();
         UpdateUI();
@@ -84,27 +93,42 @@ public class GameManager : MonoBehaviour
     }
 
     // 投げた瞬間に呼ぶ
+    // public void StartRoll()
+    // {
+    //     isRolling = true;
+
+    //     frameManager.OnBallThrown();
+
+    //     if (cameraBallFollower != null && ballRb != null)
+    //     {
+    //         cameraBallFollower.StartFollowing(ballRb.transform);
+    //     }
+    //     else if (cameraBallFollower != null && ballRb == null)
+    //     {
+    //         Debug.LogWarning("GameManager: CameraBallFollower exists but ballRb is missing. Cannot start camera follow.");
+    //     }
+    //     var ballSelector = FindObjectOfType<BallSelector>();
+    //     if (ballSelector != null)
+    //         ballSelector.DisableBallChange();
+    //     // UI更新（投球回数とか表示したいならここ）
+    //     UpdateUI();
+    // }
     public void StartRoll()
     {
         isRolling = true;
+        rollTimer = 0f;
 
         frameManager.OnBallThrown();
 
         if (cameraBallFollower != null && ballRb != null)
-        {
             cameraBallFollower.StartFollowing(ballRb.transform);
-        }
-        else if (cameraBallFollower != null && ballRb == null)
-        {
-            Debug.LogWarning("GameManager: CameraBallFollower exists but ballRb is missing. Cannot start camera follow.");
-        }
-        var ballSelector = FindObjectOfType<BallSelector>();
+
+        var ballSelector = ballManager.GetCurrentBallSelector();
         if (ballSelector != null)
             ballSelector.DisableBallChange();
-        // UI更新（投球回数とか表示したいならここ）
+
         UpdateUI();
     }
-
     IEnumerator EndRoll()
     {
         yield return new WaitForSeconds(6f);
@@ -184,15 +208,59 @@ public class GameManager : MonoBehaviour
             yield break;
         }
 
+        // ballReset.ResetBall();
+        // ballReturnTrigger.ResetTrigger();
+        // yield return new WaitForSeconds(0.5f);
+        // ballReset.CheckAndResetIfNeeded();
+        // yield return new WaitForSeconds(0.3f);
+        // var ballSelector = FindObjectOfType<BallSelector>();
+        // if (ballSelector != null)
+        //     ballSelector.EnableBallChange();
+        // ballThrower.EnableThrow();
         ballReset.ResetBall();
         ballReturnTrigger.ResetTrigger();
         yield return new WaitForSeconds(0.5f);
         ballReset.CheckAndResetIfNeeded();
         yield return new WaitForSeconds(0.3f);
-        var ballSelector = FindObjectOfType<BallSelector>();
+
+        var ballSelector = ballManager.GetCurrentBallSelector();
         if (ballSelector != null)
             ballSelector.EnableBallChange();
+
+        // ★現在のプレイヤーがCPUかどうか判定
+        bool isCurrentPlayerCPU = IsCurrentPlayerCPU();
+
+        // EndRoll()の末尾、ballThrower.EnableThrow()の前に追加
+        // 次のプレイヤーのボールに切り替え
+        int nextPlayerIndex = frameManager.currentPlayerIndex;
+        ballManager.SwitchToPlayer(nextPlayerIndex);
+
+        // 参照を更新
+        ballReset = ballManager.GetCurrentBallReset();
+        ballRb = ballManager.GetCurrentRigidbody();
+        ballThrower = ballManager.GetCurrentBallThrower();
+
+        // カメラのターゲットを更新
+        // if (cameraBallFollower != null && ballRb != null)
+        //     cameraBallFollower.StartFollowing(ballRb.transform);
         ballThrower.EnableThrow();
+
+        if (isCurrentPlayerCPU && useCPU)
+        {
+            // CPUのターン → Player1のクリックを無効にしてCPU自動投球
+            ballThrower.SetPlayerControl(false);
+            cpuPlayer.StartCPUThrow();
+        }
+        else
+        {
+            // 人間のターン → クリック操作を有効に
+            ballThrower.SetPlayerControl(true);
+        }
+    }
+    bool IsCurrentPlayerCPU()
+    {
+        // Player1（index 0）は人間、それ以外はCPU
+        return frameManager.currentPlayerIndex > 0;
     }
     public int GetDownPinCount()
     {
@@ -254,7 +322,6 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(delay);
         pinManager.UnfreezeStandingPins();
     }
-
     public void StartNextGame()
     {
         GameSettings.CurrentGameNumber++;
@@ -274,5 +341,86 @@ public class GameManager : MonoBehaviour
             ballSelector.EnableBallChange();
 
         UpdateUI();
+    }
+
+    void CreateCPUToggleButton()
+    {
+        if (scoreUIManager == null) return;
+
+        var canvas = FindObjectOfType<Canvas>();
+        if (canvas == null) return;
+
+        cpuToggleButton = new GameObject("CPUToggleButton",
+            typeof(RectTransform),
+            typeof(CanvasRenderer),
+            typeof(UnityEngine.UI.Image),
+            typeof(UnityEngine.UI.Button));
+        cpuToggleButton.transform.SetParent(canvas.transform, false);
+
+        var rect = cpuToggleButton.GetComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0f, 1f);
+        rect.anchorMax = new Vector2(0f, 1f);
+        rect.pivot = new Vector2(0f, 1f);
+        rect.anchoredPosition = new Vector2(999.1f, -154.1f);
+        rect.sizeDelta = new Vector2(140f, 46f);
+
+        cpuToggleButton.GetComponent<UnityEngine.UI.Image>().color =
+            new Color32(40, 80, 120, 220);
+
+        var btn = cpuToggleButton.GetComponent<UnityEngine.UI.Button>();
+        btn.targetGraphic = cpuToggleButton.GetComponent<UnityEngine.UI.Image>();
+        btn.onClick.AddListener(ToggleCPU);
+
+        var labelGO = new GameObject("Label",
+            typeof(RectTransform),
+            typeof(TMPro.TextMeshProUGUI));
+        labelGO.transform.SetParent(cpuToggleButton.transform, false);
+        cpuToggleLabel = labelGO.GetComponent<TMPro.TextMeshProUGUI>();
+        cpuToggleLabel.fontSize = 18;
+        cpuToggleLabel.alignment = TMPro.TextAlignmentOptions.Center;
+        cpuToggleLabel.color = Color.white;
+        var labelRect = labelGO.GetComponent<RectTransform>();
+        labelRect.anchorMin = Vector2.zero;
+        labelRect.anchorMax = Vector2.one;
+        labelRect.offsetMin = Vector2.zero;
+        labelRect.offsetMax = Vector2.zero;
+
+        // 1人プレイの場合はボタンを非表示
+        if (GameSettings.PlayerCount <= 1)
+        {
+            cpuToggleButton.SetActive(false);
+        }
+
+        UpdateCPUToggleLabel();
+    }
+
+    void ToggleCPU()
+    {
+        useCPU = !useCPU;
+        if (cpuPlayer != null)
+            cpuPlayer.isCPUEnabled = useCPU;
+        UpdateCPUToggleLabel();
+        Debug.Log($"CPU: {(useCPU ? "ON" : "OFF")}");
+    }
+
+    void UpdateCPUToggleLabel()
+    {
+        if (cpuToggleLabel == null) return;
+        cpuToggleLabel.text = useCPU ? "CPU: ON" : "CPU: OFF";
+        if (cpuToggleButton != null)
+        {
+            cpuToggleButton.GetComponent<UnityEngine.UI.Image>().color =
+                useCPU ? new Color32(40, 80, 120, 220)
+                    : new Color32(80, 40, 40, 220);
+        }
+    }
+
+    public void SetCPUToggleButtonVisible(bool visible)
+    {
+        if (GameSettings.PlayerCount <= 1)
+        {
+            cpuToggleButton.SetActive(false);
+        }else if(cpuToggleButton != null)
+            cpuToggleButton.SetActive(visible);
     }
 }

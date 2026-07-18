@@ -38,7 +38,7 @@ public class BallThrower : MonoBehaviour
             hookAmount *= 0.995f;
             return;
         }
-
+        if (!playerControlEnabled) return;
         float move = 0f;
 
         if (Keyboard.current.aKey.isPressed)
@@ -149,5 +149,12 @@ public class BallThrower : MonoBehaviour
     public void EnableThrow()
     {
         canThrow = true;
+    }
+
+    private bool playerControlEnabled = true;
+
+    public void SetPlayerControl(bool enabled)
+    {
+        playerControlEnabled = enabled;
     }
 }

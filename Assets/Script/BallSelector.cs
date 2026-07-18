@@ -16,6 +16,7 @@ public class BallSelector : MonoBehaviour
     private GameObject overlayRoot;
     private Button openButton;
     private bool canChangeBall = false;
+    private int playerIndex;
 
     // カスタムボールリスト
     private List<BallInfo> allBalls = new List<BallInfo>();
@@ -34,11 +35,9 @@ public class BallSelector : MonoBehaviour
 
         uiCanvas = Object.FindAnyObjectByType<Canvas>();
 
-        // 固定ボール + カスタムボールを結合
         BuildBallList();
 
-        currentIndex = 0;
-        ApplyBall();
+        LoadPlayerBall();
 
         CreateOpenButton();
         CreateOverlayUI();
@@ -310,7 +309,16 @@ public class BallSelector : MonoBehaviour
             itemBtn.onClick.AddListener(() =>
             {
                 currentIndex = index;
+
+                PlayerPrefs.SetInt(
+                    "PlayerBall_" + playerIndex,
+                    currentIndex
+                );
+
+                PlayerPrefs.Save();
+
                 ApplyBall();
+
                 HideOverlay();
                 CreateOverlayUI();
             });
@@ -380,4 +388,30 @@ public class BallSelector : MonoBehaviour
         tmp.textWrappingMode = TextWrappingModes.NoWrap;
         return tmp;
     }
+
+    public void SetPlayerIndex(int index)
+    {
+        playerIndex = index;
+
+        currentIndex = PlayerPrefs.GetInt(
+            "PlayerBall_" + playerIndex,
+            0
+        );
+    }
+
+    public void LoadPlayerBall()
+    {
+        currentIndex = PlayerPrefs.GetInt(
+            "PlayerBall_" + playerIndex,
+            0
+        );
+
+        ApplyBall();
+    }
+
+    public void ApplyCurrentBall()
+    {
+        ApplyBall();
+    }
+
 }

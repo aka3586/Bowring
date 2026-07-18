@@ -24,6 +24,7 @@ public class ScoreUIManager : MonoBehaviour
     private GameObject scoreContentRoot;
     private Button showScoreButton;
     private Button closePanelButton;
+
     private BallSelector ballSelector;
     private FrameManager frameManager;
     private Button homeButton;
@@ -292,6 +293,7 @@ public class ScoreUIManager : MonoBehaviour
     {
         if (scoreOverlayRoot == null) return;
         if (showScoreButton != null) showScoreButton.gameObject.SetActive(false);
+        if (gameManager != null) gameManager.SetCPUToggleButtonVisible(false);
         if (ballSelector != null) ballSelector.DisableBallChange();
         scoreOverlayRoot.SetActive(true);
         RefreshScorePanel();
@@ -302,6 +304,7 @@ public class ScoreUIManager : MonoBehaviour
         if (scoreOverlayRoot == null)
             return;
         if (showScoreButton != null) showScoreButton.gameObject.SetActive(true);
+        if (gameManager != null) gameManager.SetCPUToggleButtonVisible(true);
         if (ballSelector != null) ballSelector.EnableBallChange();
         scoreOverlayRoot.SetActive(false);
     }
